@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐍 PyLogic — IF, ELIF & ELSE</title>
+  <link rel="stylesheet" href="./main.css">
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="bg-dark text-light">
+
+<header class="app-header">
+  <div class="header-branding">
+    <span class="logo-icon">🐍</span>
+    <div class="logo-text">
+      <h1>PyLogic</h1>
+      <p>Aprender decisiones con Python • Prof. Andrea Borges</p>
+    </div>
+  </div>
+
+  <div class="header-progress-container" id="headerProgressBox" style="display:none;">
+    <span class="progress-label" id="progressLabelText">Nivel 1 de 7</span>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="headerProgressBar" style="width:0%;"></div>
+    </div>
+  </div>
+
+  <div class="header-actions">
+    <button class="btn btn-outline" id="btnReporteGlobal">📄 REPORTE</button>
+    <button class="btn btn-outline" id="btnPanelDocente">🔒 DOCENTE</button>
+  </div>
+</header>
+
+<main class="main-container">
+  <section id="viewLogin" class="view-card">
+    <div class="login-box">
+      <h2>👋 ¡Bienvenido a PyLogic!</h2>
+      <p>Ingresa tus datos para comenzar el taller interactivo sobre estructuras condicionales en Python.</p>
+      
+      <form id="formIngreso">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inputNombre">Nombre completo</label>
+            <input type="text" id="inputNombre" class="form-control" placeholder="Ej: María Rodríguez" required>
+          </div>
+          <div class="form-group">
+            <label for="inputUsuario">Nombre de usuario (único)</label>
+            <input type="text" id="inputUsuario" class="form-control" placeholder="Ej: mrodriguez" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inputGrupo">Grupo / Curso</label>
+            <input type="text" id="inputGrupo" class="form-control" placeholder="Ej: 8° 1" required>
+          </div>
+          <div class="form-group">
+            <label for="inputLiceo">Liceo / Institución</label>
+            <input type="text" id="inputLiceo" class="form-control" placeholder="Ej: Liceo 53" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">🚀 COMENTAR DESAFÍO</button>
+      </form>
+    </div>
+  </section>
+
+  <section id="viewLevel" class="view-card" style="display:none;">
+    <div class="level-layout">
+      <div class="panel-theory">
+        <span class="badge-level" id="levelBadge">NIVEL 1</span>
+        <h2 id="levelTitle" class="level-title">Título del Nivel</h2>
+        
+        <div class="theory-box" id="levelTheory">
+          Explicación teórica aquí...
+        </div>
+
+        <div class="consigna-box" id="levelConsigna">
+          Consigna detallada...
+        </div>
+
+        <div class="ai-pedagogical-box" id="aiPedagogicalMessage" style="display:none;">
+          🤖 <strong>Asistente Pedagógico:</strong> Recordá revisar las comillas en los textos, los dos puntos (<code>:</code>) al final del <code>if</code>/<code>else</code> y la indentación de 4 espacios dentro del bloque.
+        </div>
+
+        <div class="hint-container">
+          <button class="btn btn-warning" id="btnPista">💡 Pedir pista (<span id="hintCount">0</span>/3)</button>
+          <div class="hint-text" id="hintText" style="display:none;"></div>
+        </div>
+      </div>
+
+      <div class="panel-editor">
+        <div class="editor-header">
+          <span>💻 Editor de código Python</span>
+          <button class="btn btn-small btn-outline" id="btnLimpiar">🧹 Limpiar</button>
+        </div>
+        
+        <textarea id="codeEditor" class="code-textarea" spellcheck="false" placeholder="Escribe tu código Python aquí..."></textarea>
+
+        <div class="editor-actions">
+          <button class="btn btn-secondary" id="btnEjecutar">▶ Ejecutar</button>
+          <button class="btn btn-success" id="btnComprobar">✅ Comprobar Solución</button>
+        </div>
+
+        <div class="terminal-box">
+          <div class="terminal-header">💻 Salida / Terminal (Pyodide)</div>
+          <pre id="terminalOutput" class="terminal-content">Presiona 'Ejecutar' para ver la salida del programa...</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="viewFinal" class="view-card" style="display:none;">
+    <div class="final-box text-center">
+      <h2>🎉 ¡Felicitaciones! Completaste PyLogic</h2>
+      <p>Has superado todos los ejercicios sobre estructuras condicionales (if, elif y else).</p>
+
+      <div class="badges-container" id="finalBadgesContainer"></div>
+
+      <div class="final-stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Nota Libreta</span>
+          <span class="stat-value highlight" id="finalNotaLibreta">10/10</span>
+          <span class="stat-sub" id="finalInterpretacion">Desempeño excelente</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Porcentaje de Logro</span>
+          <span class="stat-value" id="finalPorcentaje">100%</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Actividades Correctas</span>
+          <span class="stat-value" id="finalCorrectas">7/7</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Intentos Totales</span>
+          <span class="stat-value" id="finalIntentos">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Pistas Utilizadas</span>
+          <span class="stat-value" id="finalPistas">0</span>
+        </div>
+      </div>
+
+      <div class="final-actions">
+        <button class="btn btn-primary" id="btnVerReporteFinal">📄 Ver Reporte Completo</button>
+        <button class="btn btn-success" id="btnPDFFinal">📥 Descargar Reporte en PDF</button>
+        <button class="btn btn-outline" id="btnReintentar">🔄 Intentar Nuevamente</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="modal-overlay" id="modalReporte" style="display:none;">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>📄 Reporte de Evaluación Individual</h3>
+      <button class="modal-close" id="closeReporte">&times;</button>
+    </div>
+    <div class="modal-body" id="reporteContenidoImprimible">
+      <div class="report-header-info">
+        <div>
+          <h4>🐍 PyLogic — Informe Estudiantil</h4>
+          <p><strong>Estudiante:</strong> <span id="repNombre">-</span> (<span id="repUsuario">-</span>)</p>
+          <p><strong>Grupo:</strong> <span id="repGrupo">-</span> | <strong>Liceo:</strong> <span id="repLiceo">-</span></p>
+        </div>
+        <div class="report-grade-badge">
+          <span class="r-grade-title">Nota Libreta</span>
+          <span class="r-grade-num" id="repNotaLibreta">-</span>
+          <span class="pill" id="repEstadoPill">En curso</span>
+        </div>
+      </div>
+
+      <div class="stats-summary-bar">
+        <div><strong>Porcentaje:</strong> <span id="repPorcentaje">0%</span></div>
+        <div><strong>Logradas:</strong> <span id="repActividades">0/7</span></div>
+        <div><strong>Intentos:</strong> <span id="repIntentos">0</span></div>
+        <div><strong>Pistas:</strong> <span id="repPistas">0</span></div>
+      </div>
+
+      <h4>📋 Detalle por Nivel</h4>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nivel / Contenido</th>
+              <th>Estado</th>
+              <th>Puntos</th>
+              <th>Intentos</th>
+              <th>Pistas</th>
+            </tr>
+          </thead>
+          <tbody id="repTablaNiveles"></tbody>
+        </table>
+      </div>
+
+      <h4 style="margin-top:20px;">💻 Códigos Validados</h4>
+      <div class="validated-code-container" id="repCodigoValidadoSec"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="btnImprimir">🖨 Imprimir</button>
+      <button class="btn btn-success" id="btnPDFReporte">📥 Descargar PDF</button>
+      <button class="btn btn-secondary" id="btnCerrarReporte">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalDocente" style="display:none;">
+  <div class="modal-card modal-large">
+    <div class="modal-header">
+      <h3>🔒 Panel de Gestión Docente</h3>
+      <button class="modal-close" id="closeDocente">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="docenteAuthBox" class="docente-auth">
+        <h4>Acceso Restringido a Docentes</h4>
+        <p>Introduce la contraseña para ver los resultados de todos los estudiantes:</p>
+        <div class="form-group">
+          <input type="password" id="inputPassDocente" class="form-control" placeholder="Contraseña docente">
+        </div>
+        <button class="btn btn-primary" id="btnAutenticar">Ingresar al Panel</button>
+        <small class="help-text" style="display:block;margin-top:8px;">Clave inicial de prueba: <strong>PyLogic2026</strong></small>
+      </div>
+
+      <div id="docenteDashboardBox" style="display:none;">
+        <div class="metrics-cards-grid">
+          <div class="metric-card"><span class="m-title">👥 USUARIOS REGISTRADOS</span><span class="m-value" id="docTotalUsuarios">0</span></div>
+          <div class="metric-card"><span class="m-title">🟢 USUARIOS ACTIVOS</span><span class="m-value" id="docUsuariosActivos">0</span></div>
+          <div class="metric-card"><span class="m-title">✅ FINALIZADOS</span><span class="m-value" id="docFinalizados">0</span></div>
+          <div class="metric-card"><span class="m-title">📊 PROMEDIO GENERAL</span><span class="m-value" id="docPromedioGeneral">0.0 / 10</span></div>
+        </div>
+
+        <div class="filter-toolbar">
+          <input type="text" id="docSearchInput" class="form-control" placeholder="🔍 Buscar por estudiante o usuario...">
+        </div>
+
+        <h4>👥 Todos los Usuarios Registrados</h4>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Estudiante</th><th>Usuario</th><th>Grupo</th><th>Progreso</th>
+                <th>Nota Libreta</th><th>Estado</th><th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="docTablaEstudiantes"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="./app.js"></script>
+</body>
+</html>
